@@ -3,12 +3,20 @@ import {
   Search, MapPin, Trees, Mountain, Droplets, Sun,
   Phone, Mail, ChevronLeft, ChevronRight, Shield,
   Award, TrendingUp, Compass, Ruler, Factory,
-  Zap, Wind, Truck, Home
+  Zap, Wind, Truck, Home, X
 } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginFormData, setLoginFormData] = useState({
+    identifier: "",
+    password: "",
+  });
+  const navigate = useNavigate();
 
   const featuredLands = [
     {
@@ -166,8 +174,151 @@ export const HomePage = () => {
     { type: "Conservation", icon: "🦉", color: "bg-teal-100 text-teal-800" },
   ];
 
+  const handleLoginChange = (e) => {
+    const { name, value } = e.target;
+    setLoginFormData({
+      ...loginFormData,
+      [name]: value,
+    });
+  };
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    const { identifier, password } = loginFormData;
+
+    try {
+      const response = await fetch("/api/proxy?url=http://72.61.169.226/auth/login-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ identifier, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        setShowLoginModal(false);
+        navigate("/dashboard");
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      alert("Network error");
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
+      {/* Login Modal */}
+      <AnimatePresence>
+        {showLoginModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowLoginModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="relative bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden border border-white/20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors z-10"
+              >
+                <X className="h-6 w-6" />
+              </button>
+
+              <div className="p-8">
+                <div className="text-center mb-8">
+                  <div className="flex items-center justify-center space-x-2 mb-4">
+                    <Compass className="h-10 w-10 text-emerald-500" />
+                    <span className="text-3xl font-bold text-gray-900">GARUDA</span>
+                    <span className="text-emerald-600 font-bold">LANDS</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>
+                  <p className="mt-2 text-gray-600">
+                    Sign in to access your account
+                  </p>
+                </div>
+
+                <form onSubmit={handleLoginSubmit} className="space-y-5">
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Email or Phone
+                    </label>
+                    <input
+                      type="text"
+                      name="identifier"
+                      placeholder="Enter email or phone"
+                      value={loginFormData.identifier}
+                      onChange={handleLoginChange}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 
+                               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      placeholder="Enter password"
+                      value={loginFormData.password}
+                      onChange={handleLoginChange}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 
+                               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div className="pt-2">
+                    <motion.button
+                      type="submit"
+                      whileTap={{ scale: 0.97 }}
+                      className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 
+                               text-white font-semibold py-3 rounded-xl shadow-lg 
+                               hover:shadow-emerald-500/25 hover:from-emerald-600 hover:to-emerald-700 
+                               transition-all duration-200"
+                    >
+                      Sign In
+                    </motion.button>
+                  </div>
+
+                  <div className="text-center pt-4 border-t border-gray-100">
+                    <p className="text-gray-600 text-sm">
+                      Don't have an account?{' '}
+                      <button
+                        type="button"
+                        className="text-emerald-600 hover:text-emerald-700 font-medium"
+                        onClick={() => {
+                          // You can add signup functionality here
+                          console.log('Navigate to signup');
+                        }}
+                      >
+                        Sign up
+                      </button>
+                    </p>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Section */}
       <div 
         className="relative h-screen bg-cover bg-center"
@@ -184,15 +335,31 @@ export const HomePage = () => {
               <span className="text-emerald-500 font-bold">LANDS</span>
             </div>
             <div className="hidden md:flex space-x-8">
-              {['Home', 'Browse Lands', 'Land Services', 'Resources', 'About', 'Contact'].map((item) => (
-                <a key={item} href="#" className="text-white hover:text-emerald-300 transition-colors">
+              {['Home', 'Browse Lands', 'About', 'Contact'].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => {
+                    if (item === 'Browse Lands') {
+                      navigate('/land');
+                    }
+                  }}
+                  className="text-white hover:text-emerald-300 transition-colors bg-transparent"
+                >
                   {item}
-                </a>
+                </button>
               ))}
             </div>
-            <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
-              Land Inquiry
-            </button>
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setShowLoginModal(true)}
+                className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Sign In
+              </button>
+              <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                Land Inquiry
+              </button>
+            </div>
           </div>
         </nav>
 
@@ -353,7 +520,12 @@ export const HomePage = () => {
                       ))}
                       <span className="ml-2 text-sm font-semibold">{land.rating}</span>
                     </div>
-                    <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                    <button 
+                      onClick={() => {
+                        navigate('/land');
+                      }}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                    >
                       View Details
                     </button>
                   </div>
@@ -477,7 +649,10 @@ export const HomePage = () => {
             Join successful investors who've built their legacy with Garuda Lands
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <button className="bg-white text-emerald-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold text-lg transition-colors">
+            <button 
+              onClick={() => navigate('/land')}
+              className="bg-white text-emerald-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold text-lg transition-colors"
+            >
               Browse Available Lands
             </button>
             <button className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-8 py-3 rounded-lg font-semibold text-lg transition-colors">
