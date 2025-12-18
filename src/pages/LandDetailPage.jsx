@@ -307,7 +307,7 @@ export const LandDetailPage = () => {
                      src={proxyUrl(land.document_media.land_video[0])}
                     controls
                     className="w-full h-full"
-                    poster={images[0]}
+                    poster={proxyUrl(images[0])}
                   >
                     Your browser does not support the video tag.
                   </video>
@@ -439,7 +439,7 @@ export const LandDetailPage = () => {
                       )}
                       {land.gps_tracking?.land_border && (
                         <a
-                          href={proxy(land.gps_tracking.land_border)}
+                          href={proxyUrl(land.gps_tracking.land_border)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center p-4 border rounded-lg hover:bg-gray-50"
