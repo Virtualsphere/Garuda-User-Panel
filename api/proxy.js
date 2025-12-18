@@ -1,36 +1,42 @@
 export default async function handler(req, res) {
-  const targetUrl = req.query.url;
+  const { url } = req.query;
 
-  if (!targetUrl) {
-    return res.status(400).json({ error: 'Missing url parameter' });
+  if (!url) {
+    return res.status(400).json({ error: "Missing url parameter" });
   }
 
   try {
-    const apiResponse = await fetch(targetUrl, {
-      method: req.method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(req.headers.authorization && {
-          Authorization: req.headers.authorization,
-        }),
-      },
+    const targetUrl = decodeURIComponent(url);
+
+    // Forward range header for video streaming
+    const headers = {};
+    if (req.headers.range) {
+      headers.Range = req.headers.range;
+    }
+
+    const response = await fetch(targetUrl, {
+      method: "GET",
+      headers,
     });
 
-    const contentType = apiResponse.headers.get('content-type');
-    const data = await apiResponse.text();
+    // Forward status code (200 / 206)
+    res.status(response.status);
 
-    res.status(apiResponse.status);
-    res.setHeader(
-      'Content-Type',
-      contentType || 'application/json'
-    );
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Forward ALL headers (CRITICAL)
+    response.headers.forEach((value, key) => {
+      res.setHeader(key, value);
+    });
 
-    return res.send(data);
+    // Allow browser access
+    res.setHeader("Access-Control-Allow-Origin", "*");
+
+    // Stream binary data
+    const buffer = Buffer.from(await response.arrayBuffer());
+    res.send(buffer);
   } catch (error) {
-    console.error('Proxy error:', error);
-    return res.status(500).json({
-      error: 'Proxy failed',
+    console.error("Proxy error:", error);
+    res.status(500).json({
+      error: "Proxy failed",
       details: error.message,
     });
   }
