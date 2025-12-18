@@ -28,6 +28,14 @@ export const LandPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const proxyUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return `/api/proxy?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+  };
+
   // Fetch data from API
   useEffect(() => {
     const fetchLands = async () => {
@@ -68,7 +76,7 @@ export const LandPage = () => {
             // Get first image from land_photo array or use default
             const getImage = () => {
               if (land.document_media?.land_photo?.length > 0) {
-                return land.document_media.land_photo[0];
+                return proxyUrl(land.document_media.land_photo[0]);
               }
               // Default fallback images based on land type
               const defaultImages = {

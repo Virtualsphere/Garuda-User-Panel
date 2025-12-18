@@ -42,6 +42,14 @@ export const LandDetailPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedTab, setSelectedTab] = useState("overview");
 
+  const proxyUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return `/api/proxy?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+  };
+
   // Check if land data was passed via navigation state
   useEffect(() => {
     if (location.state?.land) {
@@ -231,7 +239,7 @@ export const LandDetailPage = () => {
             <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
               <div className="relative h-96">
                 <img
-                  src={currentImage}
+                  src={proxyUrl(currentImage)}
                   alt="Land"
                   className="w-full h-full object-cover"
                   onError={(e) => {
@@ -277,7 +285,7 @@ export const LandDetailPage = () => {
                       className={`relative h-20 rounded-lg overflow-hidden ${index === currentImageIndex ? 'ring-2 ring-emerald-500' : ''}`}
                     >
                       <img
-                        src={img}
+                        src={proxyUrl(img)}
                         alt={`Thumbnail ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
@@ -296,7 +304,7 @@ export const LandDetailPage = () => {
                 </h3>
                 <div className="aspect-video bg-black rounded-lg overflow-hidden">
                   <video
-                    src={land.document_media.land_video[0]}
+                     src={proxyUrl(land.document_media.land_video[0])}
                     controls
                     className="w-full h-full"
                     poster={images[0]}
@@ -417,7 +425,7 @@ export const LandDetailPage = () => {
                     <div className="grid grid-cols-2 gap-4">
                       {land.land_details.passbook_photo && (
                         <a
-                          href={land.land_details.passbook_photo}
+                          href={proxyUrl(land.land_details.passbook_photo)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center p-4 border rounded-lg hover:bg-gray-50"
@@ -431,7 +439,7 @@ export const LandDetailPage = () => {
                       )}
                       {land.gps_tracking?.land_border && (
                         <a
-                          href={land.gps_tracking.land_border}
+                          href={proxy(land.gps_tracking.land_border)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center p-4 border rounded-lg hover:bg-gray-50"
