@@ -3,7 +3,7 @@ import {
   Search, MapPin, Trees, Mountain, Droplets, Sun,
   Phone, Mail, ChevronLeft, ChevronRight, Shield,
   Award, TrendingUp, Compass, Ruler, Factory,
-  Zap, Wind, Truck, Home, X
+  Zap, Wind, Truck, Home, X, UserPlus
 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,167 +12,27 @@ export const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
   const [loginFormData, setLoginFormData] = useState({
     identifier: "",
     password: "",
   });
+  const [signupFormData, setSignupFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    role: "",
+    agree: false,
+  });
+  const [loading, setLoading] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [rolesLoading, setRolesLoading] = useState(true);
+  const [signupError, setSignupError] = useState("");
+  
   const navigate = useNavigate();
 
-  const featuredLands = [
-    {
-      id: 1,
-      title: "50-Acre Agricultural Paradise",
-      price: "$750,000",
-      location: "Central Valley, California",
-      acres: 50,
-      waterSource: "Well & Stream",
-      soilType: "Fertile Loam",
-      zoning: "Agricultural",
-      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
-      rating: 4.9,
-      featured: true,
-      type: "agricultural"
-    },
-    {
-      id: 2,
-      title: "Mountain View Development Land",
-      price: "$1,200,000",
-      location: "Rocky Mountains, Colorado",
-      acres: 25,
-      waterSource: "Municipal",
-      soilType: "Rocky",
-      zoning: "Residential/Commercial",
-      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
-      rating: 4.8,
-      featured: true,
-      type: "development"
-    },
-    {
-      id: 3,
-      title: "Riverfront Recreational Property",
-      price: "$450,000",
-      location: "Missouri River, Montana",
-      acres: 15,
-      waterSource: "River Frontage",
-      soilType: "Sandy Loam",
-      zoning: "Recreational",
-      image: "https://images.unsplash.com/photo-1439066615861-d1af74d74000?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
-      rating: 4.7,
-      featured: true,
-      type: "recreational"
-    },
-    {
-      id: 4,
-      title: "Solar Farm Ready Land",
-      price: "$950,000",
-      location: "Mojave Desert, Nevada",
-      acres: 100,
-      waterSource: "Limited",
-      soilType: "Sandy",
-      zoning: "Energy/Industrial",
-      image: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
-      rating: 4.6,
-      featured: false,
-      type: "industrial"
-    },
-    {
-      id: 5,
-      title: "Timber Investment Property",
-      price: "$650,000",
-      location: "Pacific Northwest, Oregon",
-      acres: 80,
-      waterSource: "Multiple Streams",
-      soilType: "Clay Loam",
-      zoning: "Forestry",
-      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
-      rating: 4.9,
-      featured: true,
-      type: "timber"
-    },
-    {
-      id: 6,
-      title: "Lakeside Vacation Plot",
-      price: "$325,000",
-      location: "Lake Tahoe, California",
-      acres: 5,
-      waterSource: "Lake Access",
-      soilType: "Rocky/Sandy",
-      zoning: "Residential",
-      image: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
-      rating: 4.8,
-      featured: false,
-      type: "residential"
-    },
-  ];
-
-  const landTypes = [
-    { icon: <Trees />, label: "Agricultural", count: "342" },
-    { icon: <Mountain />, label: "Development", count: "189" },
-    { icon: <Droplets />, label: "Waterfront", count: "156" },
-    { icon: <Factory />, label: "Industrial", count: "98" },
-    { icon: <Sun />, label: "Solar", count: "67" },
-    { icon: <Compass />, label: "Recreational", count: "234" },
-  ];
-
-  const landFeatures = [
-    {
-      title: "Water Rights Included",
-      description: "Full legal water rights with documented sources",
-      icon: <Droplets className="h-6 w-6" />
-    },
-    {
-      title: "Mineral Rights Available",
-      description: "Ownership of subsurface minerals negotiable",
-      icon: <Mountain className="h-6 w-6" />
-    },
-    {
-      title: "Survey & Title Ready",
-      description: "Recent surveys and clear titles provided",
-      icon: <Ruler className="h-6 w-6" />
-    },
-    {
-      title: "Utility Access",
-      description: "Power, water, and internet infrastructure available",
-      icon: <Zap className="h-6 w-6" />
-    },
-  ];
-
-  const testimonials = [
-    {
-      name: "James Wilson",
-      text: "Found perfect 100-acre farmland with Garuda. Their expertise in agricultural zoning was invaluable.",
-      role: "Farm Investor",
-      rating: 5
-    },
-    {
-      name: "Linda Martinez",
-      text: "Purchased development land that doubled in value in 3 years. Excellent investment advice!",
-      role: "Property Developer",
-      rating: 5
-    },
-    {
-      name: "Robert Chen",
-      text: "Garuda helped us secure a beautiful lakeside property with all the necessary permits in place.",
-      role: "Vacation Home Buyer",
-      rating: 5
-    }
-  ];
-
-  const stats = [
-    { icon: <Award />, value: "15,000+", label: "Acres Sold" },
-    { icon: <Shield />, value: "98%", label: "Client Satisfaction" },
-    { icon: <TrendingUp />, value: "$2.5B+", label: "Total Transactions" },
-    { icon: <Compass />, value: "40+", label: "States Covered" }
-  ];
-
-  const landUses = [
-    { type: "Farming", icon: "🌾", color: "bg-green-100 text-green-800" },
-    { type: "Ranching", icon: "🐄", color: "bg-brown-100 text-brown-800" },
-    { type: "Solar Farm", icon: "☀️", color: "bg-yellow-100 text-yellow-800" },
-    { type: "Timber", icon: "🌲", color: "bg-emerald-100 text-emerald-800" },
-    { type: "Development", icon: "🏗️", color: "bg-blue-100 text-blue-800" },
-    { type: "Conservation", icon: "🦉", color: "bg-teal-100 text-teal-800" },
-  ];
+  // Your existing data arrays (featuredLands, landTypes, landFeatures, testimonials, stats, landUses)...
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -208,6 +68,121 @@ export const HomePage = () => {
       console.error("Network error:", err);
       alert("Network error");
     }
+  };
+
+  // Fetch roles for signup
+  const fetchRoles = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://72.61.169.226/admin/roles", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log("Fetched roles:", data.roles);
+        setRoles(data.roles || []);
+        
+        // If roles are fetched, set default role to first one if exists
+        if (data.roles && data.roles.length > 0) {
+          setSignupFormData(prev => ({
+            ...prev,
+            role: data.roles[0].name
+          }));
+        }
+      } else {
+        setSignupError(data.error || "Failed to load roles");
+        console.error("Error fetching roles:", data.error);
+      }
+    } catch (err) {
+      console.error("Network error fetching roles:", err);
+      setSignupError("Network error. Please check your connection.");
+    } finally {
+      setRolesLoading(false);
+    }
+  };
+
+  const handleSignupChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setSignupFormData({
+      ...signupFormData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleSignupSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!signupFormData.agree) {
+      alert("Please agree to the Terms & Conditions");
+      return;
+    }
+
+    const { name, email, phone, password, role } = signupFormData;
+
+    setLoading(true);
+    
+    try {
+      const response = await fetch("http://72.61.169.226/api/create-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        body: JSON.stringify({ 
+          name, 
+          email, 
+          phone, 
+          password, 
+          role: role
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Registration successful!");
+        console.log("Registered user:", data.user);
+        // Reset form after successful registration
+        setSignupFormData({
+          name: "",
+          email: "",
+          phone: "",
+          password: "",
+          role: roles.length > 0 ? roles[0].name : "",
+          agree: false,
+        });
+        setShowSignupModal(false);
+      } else {
+        alert(`Error: ${data.error || "Registration failed"}`);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      alert("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Open signup modal and fetch roles
+  const openSignupModal = async () => {
+    setShowLoginModal(false);
+    setShowSignupModal(true);
+    if (roles.length === 0) {
+      setRolesLoading(true);
+      await fetchRoles();
+    }
+  };
+
+  // Open login modal from signup
+  const openLoginModal = () => {
+    setShowSignupModal(false);
+    setShowLoginModal(true);
   };
 
   return (
@@ -303,12 +278,216 @@ export const HomePage = () => {
                       <button
                         type="button"
                         className="text-emerald-600 hover:text-emerald-700 font-medium"
-                        onClick={() => {
-                          // You can add signup functionality here
-                          console.log('Navigate to signup');
-                        }}
+                        onClick={openSignupModal}
                       >
                         Sign up
+                      </button>
+                    </p>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Signup Modal */}
+      <AnimatePresence>
+        {showSignupModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSignupModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="relative bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden border border-white/20 max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setShowSignupModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors z-10"
+              >
+                <X className="h-6 w-6" />
+              </button>
+
+              <div className="p-8">
+                <div className="text-center mb-8">
+                  <div className="flex items-center justify-center space-x-2 mb-4">
+                    <UserPlus className="h-10 w-10 text-emerald-500" />
+                    <span className="text-3xl font-bold text-gray-900">GARUDA</span>
+                    <span className="text-emerald-600 font-bold">LANDS</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
+                  <p className="mt-2 text-gray-600">
+                    Signing up is easy. It only takes a few steps.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSignupSubmit} className="space-y-5">
+                  <div>
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Full Name"
+                      value={signupFormData.name}
+                      onChange={handleSignupChange}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 
+                               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Email Address"
+                      value={signupFormData.email}
+                      onChange={handleSignupChange}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 
+                               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="Phone Number"
+                      value={signupFormData.phone}
+                      onChange={handleSignupChange}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 
+                               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Select Role
+                      </label>
+                      {signupError && (
+                        <div className="text-red-500 text-sm mb-2 p-2 bg-red-50 rounded">
+                          {signupError}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {rolesLoading ? (
+                      <div className="flex items-center justify-center p-3 border border-gray-300 rounded-lg bg-gray-50">
+                        <svg className="animate-spin h-5 w-5 mr-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span className="text-gray-600">Loading roles...</span>
+                      </div>
+                    ) : roles.length === 0 ? (
+                      <div className="text-center p-3 border border-yellow-300 rounded-lg bg-yellow-50">
+                        <p className="text-yellow-700 text-sm">
+                          No roles found. Please create roles first in Access Controls.
+                        </p>
+                      </div>
+                    ) : (
+                      <select
+                        name="role"
+                        value={signupFormData.role}
+                        onChange={handleSignupChange}
+                        className="w-full border border-gray-300 rounded-xl px-4 py-3 
+                                 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-white"
+                        required
+                      >
+                        <option value="">-- Select a Role --</option>
+                        {roles.map((role) => (
+                          <option 
+                            key={role.id || role.name} 
+                            value={role.name}
+                            title={role.description || "No description"}
+                          >
+                            {role.name}
+                            {role.description && ` - ${role.description}`}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    
+                    {roles.length > 0 && (
+                      <div className="mt-2 text-xs text-gray-500">
+                        {roles.length} role(s) loaded from database
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <input
+                      type="password"
+                      name="password"
+                      placeholder="Password"
+                      value={signupFormData.password}
+                      onChange={handleSignupChange}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 
+                               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      required
+                      minLength="6"
+                    />
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      id="agree"
+                      name="agree"
+                      checked={signupFormData.agree}
+                      onChange={handleSignupChange}
+                      className="mt-1 h-5 w-5 text-emerald-600 focus:ring-emerald-500 rounded transition-all"
+                      required
+                    />
+                    <label htmlFor="agree" className="text-gray-600 text-sm">
+                      I agree to all Terms & Conditions and Privacy Policy
+                    </label>
+                  </div>
+
+                  <div className="pt-2">
+                    <motion.button
+                      type="submit"
+                      disabled={loading || rolesLoading || !signupFormData.role}
+                      whileTap={{ scale: 0.97 }}
+                      className={`w-full bg-gradient-to-r from-emerald-500 to-emerald-600 
+                               text-white font-semibold py-3 rounded-xl shadow-lg 
+                               hover:shadow-emerald-500/25 hover:from-emerald-600 hover:to-emerald-700 
+                               transition-all duration-200 ${(loading || rolesLoading || !signupFormData.role) ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Processing...
+                        </span>
+                      ) : (
+                        "CREATE ACCOUNT"
+                      )}
+                    </motion.button>
+                  </div>
+
+                  <div className="text-center pt-4 border-t border-gray-100">
+                    <p className="text-gray-600 text-sm">
+                      Already have an account?{' '}
+                      <button
+                        type="button"
+                        className="text-emerald-600 hover:text-emerald-700 font-medium"
+                        onClick={openLoginModal}
+                      >
+                        Sign in
                       </button>
                     </p>
                   </div>
@@ -326,7 +505,7 @@ export const HomePage = () => {
           backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920)'
         }}
       >
-        {/* Navigation */}
+        {/* Navigation - Updated to include Sign Up button */}
         <nav className="relative z-10 px-6 py-6 md:px-12">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -350,6 +529,12 @@ export const HomePage = () => {
               ))}
             </div>
             <div className="flex items-center space-x-4">
+              <button 
+                onClick={openSignupModal}
+                className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Sign Up
+              </button>
               <button 
                 onClick={() => setShowLoginModal(true)}
                 className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-2 rounded-lg font-semibold transition-colors"
