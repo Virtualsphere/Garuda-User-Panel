@@ -1,55 +1,37 @@
-// /api/proxy.js - Serverless function to proxy API requests
-export default async function handler(request) {
-  // Get the target URL from the query parameter or request body
-  const urlParam = new URL(request.url).searchParams.get('url');
-  const targetUrl = urlParam || 'http://72.61.169.226';
+export default async function handler(req, res) {
+  const targetUrl = req.query.url;
+
+  if (!targetUrl) {
+    return res.status(400).json({ error: 'Missing url parameter' });
+  }
 
   try {
-    // Forward the request to the external API
-    const apiResponse = await fetch(targetUrl + request.url.replace(/^.*\/api\/proxy/, ''), {
-      method: request.method,
+    const apiResponse = await fetch(targetUrl, {
+      method: req.method,
       headers: {
         'Content-Type': 'application/json',
-        // Forward other headers as needed
+        ...(req.headers.authorization && {
+          Authorization: req.headers.authorization,
+        }),
       },
-      body: request.method !== 'GET' ? await request.text() : undefined,
     });
 
-    // Get the response data
+    const contentType = apiResponse.headers.get('content-type');
     const data = await apiResponse.text();
 
-    // Return the response with CORS headers
-    return new Response(data, {
-      status: apiResponse.status,
-      statusText: apiResponse.statusText,
-      headers: {
-        'Content-Type': apiResponse.headers.get('Content-Type') || 'application/json',
-        'Access-Control-Allow-Origin': '*', // Allow your Vercel frontend domain
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
-    });
+    res.status(apiResponse.status);
+    res.setHeader(
+      'Content-Type',
+      contentType || 'application/json'
+    );
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    return res.send(data);
   } catch (error) {
     console.error('Proxy error:', error);
-    return new Response(JSON.stringify({ error: 'Proxy failed', details: error.message }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+    return res.status(500).json({
+      error: 'Proxy failed',
+      details: error.message,
     });
   }
-}
-
-// Handle OPTIONS requests for CORS preflight
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Max-Age': '86400',
-    },
-  });
 }
