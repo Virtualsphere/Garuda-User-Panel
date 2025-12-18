@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, MapPin, Trees, Mountain, Droplets, Sun,
   Phone, Mail, ChevronLeft, ChevronRight, Shield,
   Award, TrendingUp, Compass, Ruler, Factory,
-  Zap, Wind, Truck, Home, X, UserPlus
+  Zap, Wind, Truck, Home, X, UserPlus, Star
 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,10 +29,172 @@ export const HomePage = () => {
   const [roles, setRoles] = useState([]);
   const [rolesLoading, setRolesLoading] = useState(true);
   const [signupError, setSignupError] = useState("");
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
   
   const navigate = useNavigate();
 
-  // Your existing data arrays (featuredLands, landTypes, landFeatures, testimonials, stats, landUses)...
+  const featuredLands = [
+    {
+      id: 1,
+      title: "50-Acre Agricultural Paradise",
+      price: "$750,000",
+      location: "Central Valley, California",
+      acres: 50,
+      waterSource: "Well & Stream",
+      soilType: "Fertile Loam",
+      zoning: "Agricultural",
+      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
+      rating: 4.9,
+      featured: true,
+      type: "agricultural"
+    },
+    {
+      id: 2,
+      title: "Mountain View Development Land",
+      price: "$1,200,000",
+      location: "Rocky Mountains, Colorado",
+      acres: 25,
+      waterSource: "Municipal",
+      soilType: "Rocky",
+      zoning: "Residential/Commercial",
+      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
+      rating: 4.8,
+      featured: true,
+      type: "development"
+    },
+    {
+      id: 3,
+      title: "Riverfront Recreational Property",
+      price: "$450,000",
+      location: "Missouri River, Montana",
+      acres: 15,
+      waterSource: "River Frontage",
+      soilType: "Sandy Loam",
+      zoning: "Recreational",
+      image: "https://images.unsplash.com/photo-1439066615861-d1af74d74000?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
+      rating: 4.7,
+      featured: true,
+      type: "recreational"
+    },
+    {
+      id: 4,
+      title: "Solar Farm Ready Land",
+      price: "$950,000",
+      location: "Mojave Desert, Nevada",
+      acres: 100,
+      waterSource: "Limited",
+      soilType: "Sandy",
+      zoning: "Energy/Industrial",
+      image: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
+      rating: 4.6,
+      featured: false,
+      type: "industrial"
+    },
+    {
+      id: 5,
+      title: "Timber Investment Property",
+      price: "$650,000",
+      location: "Pacific Northwest, Oregon",
+      acres: 80,
+      waterSource: "Multiple Streams",
+      soilType: "Clay Loam",
+      zoning: "Forestry",
+      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
+      rating: 4.9,
+      featured: true,
+      type: "timber"
+    },
+    {
+      id: 6,
+      title: "Lakeside Vacation Plot",
+      price: "$325,000",
+      location: "Lake Tahoe, California",
+      acres: 5,
+      waterSource: "Lake Access",
+      soilType: "Rocky/Sandy",
+      zoning: "Residential",
+      image: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600",
+      rating: 4.8,
+      featured: false,
+      type: "residential"
+    },
+  ];
+
+  const landTypes = [
+    { icon: <Trees />, label: "Agricultural", count: "342" },
+    { icon: <Mountain />, label: "Development", count: "189" },
+    { icon: <Droplets />, label: "Waterfront", count: "156" },
+    { icon: <Factory />, label: "Industrial", count: "98" },
+    { icon: <Sun />, label: "Solar", count: "67" },
+    { icon: <Compass />, label: "Recreational", count: "234" },
+  ];
+
+  const landFeatures = [
+    {
+      title: "Water Rights Included",
+      description: "Full legal water rights with documented sources",
+      icon: <Droplets className="h-6 w-6" />
+    },
+    {
+      title: "Mineral Rights Available",
+      description: "Ownership of subsurface minerals negotiable",
+      icon: <Mountain className="h-6 w-6" />
+    },
+    {
+      title: "Survey & Title Ready",
+      description: "Recent surveys and clear titles provided",
+      icon: <Ruler className="h-6 w-6" />
+    },
+    {
+      title: "Utility Access",
+      description: "Power, water, and internet infrastructure available",
+      icon: <Zap className="h-6 w-6" />
+    },
+  ];
+
+  const testimonials = [
+    {
+      name: "James Wilson",
+      text: "Found perfect 100-acre farmland with Garuda. Their expertise in agricultural zoning was invaluable.",
+      role: "Farm Investor",
+      rating: 5
+    },
+    {
+      name: "Linda Martinez",
+      text: "Purchased development land that doubled in value in 3 years. Excellent investment advice!",
+      role: "Property Developer",
+      rating: 5
+    },
+    {
+      name: "Robert Chen",
+      text: "Garuda helped us secure a beautiful lakeside property with all the necessary permits in place.",
+      role: "Vacation Home Buyer",
+      rating: 5
+    }
+  ];
+
+  const stats = [
+    { icon: <Award />, value: "15,000+", label: "Acres Sold" },
+    { icon: <Shield />, value: "98%", label: "Client Satisfaction" },
+    { icon: <TrendingUp />, value: "$2.5B+", label: "Total Transactions" },
+    { icon: <Compass />, value: "40+", label: "States Covered" }
+  ];
+
+  const landUses = [
+    { type: "Farming", icon: "🌾", color: "bg-green-100 text-green-800" },
+    { type: "Ranching", icon: "🐄", color: "bg-brown-100 text-brown-800" },
+    { type: "Solar Farm", icon: "☀️", color: "bg-yellow-100 text-yellow-800" },
+    { type: "Timber", icon: "🌲", color: "bg-emerald-100 text-emerald-800" },
+    { type: "Development", icon: "🏗️", color: "bg-blue-100 text-blue-800" },
+    { type: "Conservation", icon: "🦉", color: "bg-teal-100 text-teal-800" },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTestimonialIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -70,7 +232,6 @@ export const HomePage = () => {
     }
   };
 
-  // Fetch roles for signup
   const fetchRoles = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -88,7 +249,6 @@ export const HomePage = () => {
         console.log("Fetched roles:", data.roles);
         setRoles(data.roles || []);
         
-        // If roles are fetched, set default role to first one if exists
         if (data.roles && data.roles.length > 0) {
           setSignupFormData(prev => ({
             ...prev,
@@ -148,7 +308,6 @@ export const HomePage = () => {
       if (response.ok) {
         alert("Registration successful!");
         console.log("Registered user:", data.user);
-        // Reset form after successful registration
         setSignupFormData({
           name: "",
           email: "",
@@ -158,6 +317,7 @@ export const HomePage = () => {
           agree: false,
         });
         setShowSignupModal(false);
+        setShowLoginModal(true);
       } else {
         alert(`Error: ${data.error || "Registration failed"}`);
       }
@@ -169,7 +329,6 @@ export const HomePage = () => {
     }
   };
 
-  // Open signup modal and fetch roles
   const openSignupModal = async () => {
     setShowLoginModal(false);
     setShowSignupModal(true);
@@ -179,10 +338,17 @@ export const HomePage = () => {
     }
   };
 
-  // Open login modal from signup
   const openLoginModal = () => {
     setShowSignupModal(false);
     setShowLoginModal(true);
+  };
+
+  const nextTestimonial = () => {
+    setTestimonialIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setTestimonialIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length);
   };
 
   return (
@@ -205,7 +371,6 @@ export const HomePage = () => {
               className="relative bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden border border-white/20"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
               <button
                 onClick={() => setShowLoginModal(false)}
                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors z-10"
@@ -309,7 +474,6 @@ export const HomePage = () => {
               className="relative bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden border border-white/20 max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
               <button
                 onClick={() => setShowSignupModal(false)}
                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors z-10"
@@ -505,7 +669,7 @@ export const HomePage = () => {
           backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920)'
         }}
       >
-        {/* Navigation - Updated to include Sign Up button */}
+        {/* Navigation */}
         <nav className="relative z-10 px-6 py-6 md:px-12">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -805,21 +969,63 @@ export const HomePage = () => {
             </h2>
             <p className="text-gray-600">Success stories from our land transactions</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-white p-6 rounded-2xl shadow-lg">
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <div key={i} className="text-emerald-400">★</div>
-                  ))}
-                </div>
-                <p className="text-gray-600 mb-6 italic">"{testimonial.text}"</p>
-                <div>
-                  <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                  <div className="text-gray-500 text-sm">{testimonial.role}</div>
-                </div>
+          
+          <div className="relative max-w-4xl mx-auto">
+            <div className="overflow-hidden rounded-2xl bg-white shadow-xl p-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={testimonialIndex}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-center"
+                >
+                  <div className="flex justify-center mb-6">
+                    {[...Array(testimonials[testimonialIndex].rating)].map((_, i) => (
+                      <Star key={i} className="h-8 w-8 text-emerald-400 fill-emerald-400 mx-1" />
+                    ))}
+                  </div>
+                  <p className="text-xl italic text-gray-700 mb-8">
+                    "{testimonials[testimonialIndex].text}"
+                  </p>
+                  <div>
+                    <div className="font-bold text-2xl text-gray-900">
+                      {testimonials[testimonialIndex].name}
+                    </div>
+                    <div className="text-gray-600">
+                      {testimonials[testimonialIndex].role}
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            
+            <div className="flex justify-center mt-8 space-x-4">
+              <button
+                onClick={prevTestimonial}
+                className="p-3 rounded-full bg-white shadow-lg hover:shadow-xl transition-shadow"
+              >
+                <ChevronLeft className="h-6 w-6 text-gray-700" />
+              </button>
+              <div className="flex space-x-2">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setTestimonialIndex(index)}
+                    className={`w-3 h-3 rounded-full transition-colors ${
+                      testimonialIndex === index ? 'bg-emerald-600' : 'bg-gray-300'
+                    }`}
+                  />
+                ))}
               </div>
-            ))}
+              <button
+                onClick={nextTestimonial}
+                className="p-3 rounded-full bg-white shadow-lg hover:shadow-xl transition-shadow"
+              >
+                <ChevronRight className="h-6 w-6 text-gray-700" />
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -840,8 +1046,11 @@ export const HomePage = () => {
             >
               Browse Available Lands
             </button>
-            <button className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-8 py-3 rounded-lg font-semibold text-lg transition-colors">
-              Free Land Consultation
+            <button 
+              onClick={openSignupModal}
+              className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-8 py-3 rounded-lg font-semibold text-lg transition-colors"
+            >
+              Start Free Account
             </button>
           </div>
         </div>
