@@ -22,7 +22,7 @@ export const HomePage = () => {
     email: "",
     phone: "",
     password: "",
-    role: "",
+    role: "user",
     agree: false,
   });
   const [loading, setLoading] = useState(false);
@@ -232,41 +232,6 @@ export const HomePage = () => {
     }
   };
 
-  const fetchRoles = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://72.61.169.226/admin/roles", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        console.log("Fetched roles:", data.roles);
-        setRoles(data.roles || []);
-        
-        if (data.roles && data.roles.length > 0) {
-          setSignupFormData(prev => ({
-            ...prev,
-            role: data.roles[0].name
-          }));
-        }
-      } else {
-        setSignupError(data.error || "Failed to load roles");
-        console.error("Error fetching roles:", data.error);
-      }
-    } catch (err) {
-      console.error("Network error fetching roles:", err);
-      setSignupError("Network error. Please check your connection.");
-    } finally {
-      setRolesLoading(false);
-    }
-  };
-
   const handleSignupChange = (e) => {
     const { name, value, type, checked } = e.target;
     setSignupFormData({
@@ -313,7 +278,7 @@ export const HomePage = () => {
           email: "",
           phone: "",
           password: "",
-          role: roles.length > 0 ? roles[0].name : "",
+          role: "user",
           agree: false,
         });
         setShowSignupModal(false);
@@ -532,62 +497,6 @@ export const HomePage = () => {
                                focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       required
                     />
-                  </div>
-
-                  <div>
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Select Role
-                      </label>
-                      {signupError && (
-                        <div className="text-red-500 text-sm mb-2 p-2 bg-red-50 rounded">
-                          {signupError}
-                        </div>
-                      )}
-                    </div>
-                    
-                    {rolesLoading ? (
-                      <div className="flex items-center justify-center p-3 border border-gray-300 rounded-lg bg-gray-50">
-                        <svg className="animate-spin h-5 w-5 mr-3 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span className="text-gray-600">Loading roles...</span>
-                      </div>
-                    ) : roles.length === 0 ? (
-                      <div className="text-center p-3 border border-yellow-300 rounded-lg bg-yellow-50">
-                        <p className="text-yellow-700 text-sm">
-                          No roles found. Please create roles first in Access Controls.
-                        </p>
-                      </div>
-                    ) : (
-                      <select
-                        name="role"
-                        value={signupFormData.role}
-                        onChange={handleSignupChange}
-                        className="w-full border border-gray-300 rounded-xl px-4 py-3 
-                                 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-white"
-                        required
-                      >
-                        <option value="">-- Select a Role --</option>
-                        {roles.map((role) => (
-                          <option 
-                            key={role.id || role.name} 
-                            value={role.name}
-                            title={role.description || "No description"}
-                          >
-                            {role.name}
-                            {role.description && ` - ${role.description}`}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    
-                    {roles.length > 0 && (
-                      <div className="mt-2 text-xs text-gray-500">
-                        {roles.length} role(s) loaded from database
-                      </div>
-                    )}
                   </div>
 
                   <div>
